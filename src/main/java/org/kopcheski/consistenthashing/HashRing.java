@@ -12,7 +12,9 @@ public class HashRing {
 	}
 
 	public void addNode(String nodeId, int replicas) {
-		this.ring.add(nodeId);
+		for (; replicas > 0; replicas--) {
+			this.ring.add("%s_%d".formatted(nodeId, replicas));
+		}
 	}
 
 	int nodesCount() {

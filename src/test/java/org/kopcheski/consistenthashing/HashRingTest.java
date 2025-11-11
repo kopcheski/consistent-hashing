@@ -2,6 +2,8 @@ package org.kopcheski.consistenthashing;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class HashRingTest {
@@ -9,10 +11,12 @@ class HashRingTest {
 	@Test
 	void testAddNode() {
 		var hashRing = new HashRing();
-		hashRing.addNode("A", 2);
-		hashRing.addNode("B", 2);
+		int replicasEach = 2;
+		List<String> nodeIds = List.of("A", "B");
+		nodeIds.forEach(id -> hashRing.addNode(id, replicasEach));
 
-		assertEquals(2, hashRing.nodesCount());
+		int expected = nodeIds.size() * replicasEach;
+		assertEquals(expected, hashRing.nodesCount());
 	}
 
 }
