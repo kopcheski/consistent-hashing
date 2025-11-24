@@ -13,7 +13,9 @@ public class HashRing {
 
 	public void addNode(String nodeId, int replicas) {
 		for (; replicas > 0; replicas--) {
-			this.ring.add("%s_%d".formatted(nodeId, replicas));
+			String virtualNodeId = "%s_%d".formatted(nodeId, replicas);
+			int idHashCode = virtualNodeId.hashCode();
+			this.ring.add(virtualNodeId);
 		}
 	}
 
