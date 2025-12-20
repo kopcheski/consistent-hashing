@@ -1,22 +1,42 @@
 package org.kopcheski.consistenthashing;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.function.IntConsumer;
 
 public class HashRing {
 
-	private Set<String> ring;
+	private Map<Integer, String> ring;
+
+	private Map<String, Integer> serversMeta;
 
 	public HashRing() {
-		this.ring = new HashSet<>();
+		this.ring = new TreeMap<>();
+		this.serversMeta = new HashMap<>();
 	}
 
 	public void addNode(String nodeId, int replicas) {
+		this.serversMeta.put(nodeId, replicas);
+		acceptOnEachNode(nodeId, replicas, nodeIdHash -> this.ring.put(nodeIdHash, null));
+	}
+
+	public void removeNode(String nodeId) {
+		this.serversMeta.remove(nodeId);
+		acceptOnEachNode(nodeId, serversMeta.get(nodeId), nodeIdHash -> this.ring.remove(nodeIdHash));
+	}
+
+	private void acceptOnEachNode(String nodeId, int replicas, IntConsumer consumer) {
+		consumer.accept(nodeId.hashCode());
 		for (; replicas > 0; replicas--) {
 			String virtualNodeId = "%s_%d".formatted(nodeId, replicas);
 			int idHashCode = virtualNodeId.hashCode();
-			this.ring.add(virtualNodeId);
+			consumer.accept(idHashCode);
 		}
+	}
+
+	boolean isNodePresent(String nodeId) {
+		return ring.containsKey(nodeId.hashCode());
 	}
 
 	int nodesCount() {

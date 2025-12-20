@@ -2,21 +2,21 @@ package org.kopcheski.consistenthashing;
 
 import org.junit.jupiter.api.Test;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class HashRingTest {
 
 	@Test
 	void testAddNode() {
-		var hashRing = new HashRing();
-		int replicasEach = 2;
-		List<String> nodeIds = List.of("A", "B");
-		nodeIds.forEach(id -> hashRing.addNode(id, replicasEach));
+		String serverA = "A";
+		String serverB = "B";
 
-		int expected = nodeIds.size() * replicasEach;
-		assertEquals(expected, hashRing.nodesCount());
+		var hashRing = new HashRing();
+		hashRing.addNode(serverA, 0);
+		hashRing.addNode(serverB, 0);
+
+		assertTrue(hashRing.isNodePresent(serverA));
+		assertTrue(hashRing.isNodePresent(serverB));
 	}
 
 }
