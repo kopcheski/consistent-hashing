@@ -7,9 +7,9 @@ import java.util.function.IntConsumer;
 
 public class HashRing {
 
-	private Map<Integer, String> ring;
+	private final Map<Integer, String> ring;
 
-	private Map<String, Integer> serversMeta;
+	private final Map<String, Integer> serversMeta;
 
 	public HashRing() {
 		this.ring = new TreeMap<>();
@@ -17,13 +17,15 @@ public class HashRing {
 	}
 
 	public void addNode(String nodeId, int replicas) {
+		serversMeta.computeIfPresent(nodeId, (k, v) -> { throw new IllegalArgumentException("Node already exists"); });
+
 		this.serversMeta.put(nodeId, replicas);
 		acceptOnEachNode(nodeId, replicas, nodeIdHash -> this.ring.put(nodeIdHash, null));
 	}
 
 	public void removeNode(String nodeId) {
 		this.serversMeta.remove(nodeId);
-		acceptOnEachNode(nodeId, serversMeta.get(nodeId), nodeIdHash -> this.ring.remove(nodeIdHash));
+		acceptOnEachNode(nodeId, serversMeta.get(nodeId), this.ring::remove);
 	}
 
 	private void acceptOnEachNode(String nodeId, int replicas, IntConsumer consumer) {
