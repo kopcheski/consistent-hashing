@@ -26,8 +26,8 @@ public class HashRing {
 	public void removeNode(String nodeId) {
 		serversMeta.computeIfAbsent(nodeId, k -> { throw new IllegalArgumentException("Node already exists"); });
 
-		this.serversMeta.remove(nodeId);
 		acceptOnEachNode(nodeId, serversMeta.get(nodeId), this.ring::remove);
+		this.serversMeta.remove(nodeId);
 	}
 
 	private void acceptOnEachNode(String nodeId, int replicas, IntConsumer consumer) {
