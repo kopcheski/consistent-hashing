@@ -33,7 +33,8 @@ class AddNodeTest {
 
 		hashRing.addNode(serverA, replicas);
 
-		assertEquals(replicas + 1, hashRing.nodesCount(), "A total # of replicas + 1 server should be present in the ring.");
+		assertEquals(replicas + 1, hashRing.nodesCount(),
+				"A total # of replicas + 1 server should be present in the ring.");
 	}
 
 	@Test

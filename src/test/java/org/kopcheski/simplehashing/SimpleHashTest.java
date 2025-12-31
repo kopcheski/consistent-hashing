@@ -15,7 +15,7 @@ class SimpleHashTest {
 	private static final double TOLERANCE_PCT = .05;
 
 	@Test
-	void testSimpleHash() {
+	void testEntriesDistributedEvenlyAcrossServers() {
 		var simpleHash = new SimpleHash(SERVERS);
 
 		for (int i = 0; i < ENTRIES_COUNT; i++) {
