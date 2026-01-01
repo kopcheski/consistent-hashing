@@ -9,29 +9,29 @@ class AddNodeTest {
 
 	private HashRing hashRing;
 
+	private Node nodeA, nodeB;
+
 	@BeforeEach
 	void setUp() {
 		hashRing = new HashRing();
+		nodeA = new Node("A");
+		nodeB = new Node("B");
 	}
 
 	@Test
 	void testAddNode() {
-		String serverA = "A";
-		String serverB = "B";
+		hashRing.addNode(nodeA, 0);
+		hashRing.addNode(nodeB, 0);
 
-		hashRing.addNode(serverA, 0);
-		hashRing.addNode(serverB, 0);
-
-		assertTrue(hashRing.isNodePresent(serverA));
-		assertTrue(hashRing.isNodePresent(serverB));
+		assertTrue(hashRing.isNodePresent(nodeA));
+		assertTrue(hashRing.isNodePresent(nodeB));
 	}
 
 	@Test
 	void testReplicasPresentInTheRing() {
-		String serverA = "A";
 		int replicas = 3;
 
-		hashRing.addNode(serverA, replicas);
+		hashRing.addNode(nodeA, replicas);
 
 		assertEquals(replicas + 1, hashRing.nodesCount(),
 				"A total # of replicas + 1 server should be present in the ring.");
@@ -39,8 +39,8 @@ class AddNodeTest {
 
 	@Test
 	void testAddNodeFailsWhenItAlreadyExists() {
-		hashRing.addNode("A", 0);
-		assertThrows(IllegalArgumentException.class, () -> hashRing.addNode("A", 0));
+		hashRing.addNode(nodeA, 0);
+		assertThrows(IllegalArgumentException.class, () -> hashRing.addNode(nodeA, 0));
 	}
 
 }

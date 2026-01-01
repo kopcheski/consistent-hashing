@@ -16,21 +16,24 @@ public class HashRing {
 		this.serversMeta = new HashMap<>();
 	}
 
-	public void addNode(String nodeId, int replicas) {
+	public void addNode(Node node, int replicas) {
+		var nodeId = node.getId();
 		this.serversMeta.computeIfPresent(nodeId, (k, v) -> { throw new IllegalArgumentException("Node already exists"); });
 
 		this.serversMeta.put(nodeId, replicas);
-		acceptOnEachNode(nodeId, replicas, nodeIdHash -> this.ring.put(nodeIdHash, null));
+		acceptOnEachNode(node, replicas, nodeIdHash -> this.ring.put(nodeIdHash, null));
 	}
 
-	public void removeNode(String nodeId) {
+	public void removeNode(Node node) {
+		var nodeId = node.getId();
 		this.serversMeta.computeIfAbsent(nodeId, k -> { throw new IllegalArgumentException("Node already exists"); });
 
-		acceptOnEachNode(nodeId, this.serversMeta.get(nodeId), this.ring::remove);
+		acceptOnEachNode(node, this.serversMeta.get(nodeId), this.ring::remove);
 		this.serversMeta.remove(nodeId);
 	}
 
-	private void acceptOnEachNode(String nodeId, int replicas, IntConsumer consumer) {
+	private void acceptOnEachNode(Node node, int replicas, IntConsumer consumer) {
+		var nodeId = node.getId();
 		consumer.accept(nodeId.hashCode());
 		for (; replicas > 0; replicas--) {
 			String virtualNodeId = "%s_%d".formatted(nodeId, replicas);
@@ -39,8 +42,8 @@ public class HashRing {
 		}
 	}
 
-	boolean isNodePresent(String nodeId) {
-		return ring.containsKey(nodeId.hashCode());
+	boolean isNodePresent(Node node) {
+		return ring.containsKey(node.getId().hashCode());
 	}
 
 	int nodesCount() {

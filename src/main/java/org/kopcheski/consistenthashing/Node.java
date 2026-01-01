@@ -47,4 +47,8 @@ public class Node {
 		return new HashMap<>(this.storage);
 	}
 
+	public String getId() {
+		return this.id;
+	}
+
 }
