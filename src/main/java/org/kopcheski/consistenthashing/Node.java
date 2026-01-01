@@ -1,4 +1,4 @@
-package org.kopcheski;
+package org.kopcheski.consistenthashing;
 
 import java.util.HashMap;
 import java.util.Map;
