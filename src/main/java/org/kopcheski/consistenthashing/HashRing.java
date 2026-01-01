@@ -11,9 +11,12 @@ public class HashRing {
 
 	private final Map<String, Integer> serversMeta;
 
+	private final HashFunction hashFunction;
+
 	public HashRing() {
 		this.ring = new TreeMap<>();
 		this.serversMeta = new HashMap<>();
+		this.hashFunction = new HashFunction();
 	}
 
 	public void addNode(Node node, int replicas) {
@@ -34,19 +37,20 @@ public class HashRing {
 
 	private void acceptOnEachNode(Node node, int replicas, IntConsumer consumer) {
 		var nodeId = node.getId();
-		consumer.accept(nodeId.hashCode());
+		consumer.accept(hashFunction.hash(nodeId));
 		for (; replicas > 0; replicas--) {
 			String virtualNodeId = "%s_%d".formatted(nodeId, replicas);
-			int idHashCode = virtualNodeId.hashCode();
+			int idHashCode = hashFunction.hash(virtualNodeId);
 			consumer.accept(idHashCode);
 		}
 	}
 
 	boolean isNodePresent(Node node) {
-		return ring.containsKey(node.getId().hashCode());
+		return ring.containsKey(hashFunction.hash(node.getId()));
 	}
 
 	int nodesCount() {
 		return ring.size();
 	}
+
 }
