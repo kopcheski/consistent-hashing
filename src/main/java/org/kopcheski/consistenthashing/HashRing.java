@@ -17,16 +17,16 @@ public class HashRing {
 	}
 
 	public void addNode(String nodeId, int replicas) {
-		serversMeta.computeIfPresent(nodeId, (k, v) -> { throw new IllegalArgumentException("Node already exists"); });
+		this.serversMeta.computeIfPresent(nodeId, (k, v) -> { throw new IllegalArgumentException("Node already exists"); });
 
 		this.serversMeta.put(nodeId, replicas);
 		acceptOnEachNode(nodeId, replicas, nodeIdHash -> this.ring.put(nodeIdHash, null));
 	}
 
 	public void removeNode(String nodeId) {
-		serversMeta.computeIfAbsent(nodeId, k -> { throw new IllegalArgumentException("Node already exists"); });
+		this.serversMeta.computeIfAbsent(nodeId, k -> { throw new IllegalArgumentException("Node already exists"); });
 
-		acceptOnEachNode(nodeId, serversMeta.get(nodeId), this.ring::remove);
+		acceptOnEachNode(nodeId, this.serversMeta.get(nodeId), this.ring::remove);
 		this.serversMeta.remove(nodeId);
 	}
 
