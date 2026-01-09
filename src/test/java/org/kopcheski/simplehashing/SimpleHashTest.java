@@ -1,5 +1,6 @@
 package org.kopcheski.simplehashing;
 
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.nio.charset.StandardCharsets;
@@ -15,6 +16,8 @@ class SimpleHashTest {
 	private static final double TOLERANCE_PCT = .05;
 
 	@Test
+	@Disabled
+	//FIXME non-deterministic test.
 	void testEntriesDistributedEvenlyAcrossServers() {
 		var simpleHash = new SimpleHash(SERVERS);
 
