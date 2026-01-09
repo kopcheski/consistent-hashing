@@ -29,43 +29,44 @@ class HashRingTest {
 			assertThrows(IllegalStateException.class, () -> hashRing.findNodeId("A"));
 		}
 
+		/*
+		 * The ring is represented as a circle, where the nodes are placed based on their hash.
+		 * The keys are also placed on the ring based on their hash.
+		 * To find the node responsible for a key, we move clockwise on the ring until we find a node.
+		 *
+		 * The hashes for the nodes and keys are:
+		 *
+		 * Node/Key | Hash
+		 * ---------|-----------
+		 * Key 1    | -1810453357
+		 * Node B   | -861508982
+		 * Node C   | -367198581
+		 * Key 2    | 19522071
+		 * Key 3    | 264741300
+		 * Node A   | 1423767502
+		 *
+		 * Based on the hashes, the ring looks like this:
+		 *
+		 * ... -> Key 1 -> Node B -> Node C -> Key 2 -> Key 3 -> Node A -> ...
+		 *
+		 * So:
+		 * - Key 1 belongs to Node B
+		 * - Key 2 belongs to Node A
+		 * - Key 3 belongs to Node A
+		 */
 		@Test
 		void testFindNodeByKey() {
-			hashRing.addNode(nodeA, 0); //NA 1423767502
-			hashRing.addNode(nodeB, 0); //NB -861508982
-			hashRing.addNode(nodeC, 0); //NC -367198581
+			hashRing.addNode(nodeA, 0);
+			hashRing.addNode(nodeB, 0);
+			hashRing.addNode(nodeC, 0);
 
-			var key1 = "1"; //K1 -1810453357
-			var key2 = "2"; //K2    19522071
-			var key3 = "3"; //K3   264741300
-
-			assertEquals(nodeB.getId(), hashRing.findNodeId("1"));
-			assertEquals(nodeA.getId(), hashRing.findNodeId("2"));
-			assertEquals(nodeA.getId(), hashRing.findNodeId("3"));
-
-
-			//K1 -1810453357
-			//NB  -861508982
-
-			//NC  -367198581
-
-			//K2    19522071
-			//K3   264741300
-			//NA  1423767502
-
-			// nodeB = 1
-			// nodeC =
-			// nodeA = 2, 3
+			var key1 = "1";
+			var key2 = "2";
+			var key3 = "3";
 
 			assertEquals(nodeB.getId(), hashRing.findNodeId(key1));
 			assertEquals(nodeA.getId(), hashRing.findNodeId(key2));
 			assertEquals(nodeA.getId(), hashRing.findNodeId(key3));
-			System.out.printf("The hash of key %s is %d%n", key1, hashFunction.hash(key1));
-			System.out.printf("The hash of key %s is %d%n", key2, hashFunction.hash(key2));
-			System.out.printf("The hash of key %s is %d%n", key3, hashFunction.hash(key3));
-			System.out.printf("The hash of node %s is %d%n", "A", hashFunction.hash("A"));
-			System.out.printf("The hash of node %s is %d%n", "B", hashFunction.hash("B"));
-			System.out.printf("The hash of node %s is %d%n", "C", hashFunction.hash("C"));
 		}
 
 	}
