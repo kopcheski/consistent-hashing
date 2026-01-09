@@ -64,8 +64,6 @@ class HashRingTest {
 		 * - Key 4 belongs to Node C
 		 */
 		@Test
-		@Disabled
-		// the implementation is return the next ELEMENT in the map, instead of looking for the nearest NODE.
 		void testFindNodeByKey() {
 			hashRing.addNode(nodeA, 0);
 			hashRing.addNode(nodeB, 0);

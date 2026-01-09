@@ -31,11 +31,15 @@ public class HashRing {
 			throw new IllegalStateException("Ring is empty");
 		}
 		var hash = hashFunction.hash(key);
-		if (!ring.containsKey(hash)) {
+		if (ring.containsKey(hash)) {
 			SortedMap<Hash, RingValue> tailMap = ring.tailMap(hash);
-			hash = tailMap.isEmpty() ? ring.firstKey() : tailMap.firstKey();
+			hash = tailMap.isEmpty() ? ring.firstKey() : tailMap.entrySet().stream()
+					.filter(entry -> entry.getValue() instanceof NodeId)
+					.map(Map.Entry::getKey)
+					.findFirst()
+					.orElse(ring.firstKey());
 		}
-		return (NodeId) ring.get(hash); // it should return the nearest key, not the value.
+		return (NodeId) ring.get(hash);
 	}
 
 	public void addKey(Key key) {
