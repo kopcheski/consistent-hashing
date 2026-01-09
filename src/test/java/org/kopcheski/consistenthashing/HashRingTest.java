@@ -9,13 +9,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class HashRingTest {
 
 	private HashRing hashRing;
-	private HashFunction hashFunction;
 	private Node nodeA, nodeB, nodeC;
 
 	@BeforeEach
 	void setUp() {
 		hashRing = new HashRing();
-		hashFunction = new HashFunction();
 		nodeA = new Node("A");
 		nodeB = new Node("B");
 		nodeC = new Node("C");
@@ -39,20 +37,22 @@ class HashRingTest {
 		 * Node/Key | Hash
 		 * ---------|-----------
 		 * Key 1    | -1810453357
-		 * Node B   | -861508982
-		 * Node C   | -367198581
-		 * Key 2    | 19522071
-		 * Key 3    | 264741300
-		 * Node A   | 1423767502
+		 * Node B   |  -861508982
+		 * Key 4    |  -516830072
+		 * Node C   |  -367198581
+		 * Key 2    |    19522071
+		 * Key 3    |   264741300
+		 * Node A   |  1423767502
 		 *
 		 * Based on the hashes, the ring looks like this:
 		 *
-		 * ... -> Key 1 -> Node B -> Node C -> Key 2 -> Key 3 -> Node A -> ...
+		 * ... -> Key 1 -> Node B -> Key 4 -> Node C -> Key 2 -> Key 3 -> Node A -> ...
 		 *
 		 * So:
 		 * - Key 1 belongs to Node B
 		 * - Key 2 belongs to Node A
 		 * - Key 3 belongs to Node A
+		 * - Key 4 belongs to Node C
 		 */
 		@Test
 		void testFindNodeByKey() {
@@ -63,10 +63,12 @@ class HashRingTest {
 			var key1 = "1";
 			var key2 = "2";
 			var key3 = "3";
+			var key4 = "4";
 
 			assertEquals(nodeB.getId(), hashRing.findNodeId(key1));
 			assertEquals(nodeA.getId(), hashRing.findNodeId(key2));
 			assertEquals(nodeA.getId(), hashRing.findNodeId(key3));
+			assertEquals(nodeC.getId(), hashRing.findNodeId(key4));
 		}
 
 	}
