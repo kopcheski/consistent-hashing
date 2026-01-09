@@ -32,6 +32,10 @@ public class HashRing {
 		return ring.get(hash); // it should return the nearest key, not the value.
 	}
 
+	public void addKey(String key) {
+		ring.put(hashFunction.hash(key), key);
+	}
+
 	// fixit: an instance of Node shouldn't be kept here, only its id instead.
 	// the Node represents a remote storage, so keeping instances of it is undoable.
 	public void addNode(Node node, int replicas) {
@@ -67,5 +71,4 @@ public class HashRing {
 	int nodesCount() {
 		return ring.size();
 	}
-
 }
