@@ -2,12 +2,13 @@ package org.kopcheski.consistenthashing;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.function.IntConsumer;
 
 public class HashRing {
 
-	private final Map<Integer, String> ring;
+	private final TreeMap<Integer, String> ring;
 
 	private final Map<String, Integer> serversMeta;
 
@@ -19,12 +20,26 @@ public class HashRing {
 		this.hashFunction = new HashFunction();
 	}
 
+	public String findNodeId(String key) {
+		if (ring.isEmpty()) {
+			throw new IllegalStateException("Ring is empty");
+		}
+		int hash = hashFunction.hash(key);
+		if (!ring.containsKey(hash)) {
+			SortedMap<Integer, String> tailMap = ring.tailMap(hash);
+			hash = tailMap.isEmpty() ? ring.firstKey() : tailMap.firstKey();
+		}
+		return ring.get(hash); // it should return the nearest key, not the value.
+	}
+
+	// fixit: an instance of Node shouldn't be kept here, only its id instead.
+	// the Node represents a remote storage, so keeping instances of it is undoable.
 	public void addNode(Node node, int replicas) {
 		var nodeId = node.getId();
 		this.serversMeta.computeIfPresent(nodeId, (k, v) -> { throw new IllegalArgumentException("Node already exists"); });
 
 		this.serversMeta.put(nodeId, replicas);
-		acceptOnEachNode(node, replicas, nodeIdHash -> this.ring.put(nodeIdHash, null));
+		acceptOnEachNode(node, replicas, nodeIdHash -> this.ring.put(nodeIdHash, nodeId));
 	}
 
 	public void removeNode(Node node) {
