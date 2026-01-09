@@ -3,6 +3,7 @@ package org.kopcheski.consistenthashing;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.kopcheski.consistenthashing.model.Key;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -10,6 +11,8 @@ class HashRingTest {
 
 	private HashRing hashRing;
 	private Node nodeA, nodeB, nodeC;
+	private Key key1, key2, key3, key4;
+
 
 	@BeforeEach
 	void setUp() {
@@ -17,6 +20,11 @@ class HashRingTest {
 		nodeA = new Node("A");
 		nodeB = new Node("B");
 		nodeC = new Node("C");
+
+		key1 = new Key("1");
+		key2 = new Key("2");
+		key3 = new Key("3");
+		key4 = new Key("4");
 	}
 	
 	@Nested
@@ -24,7 +32,7 @@ class HashRingTest {
 		
 		@Test
 		void testFindNodeByKeyWhenTheRingIsEmpty() {
-			assertThrows(IllegalStateException.class, () -> hashRing.findNodeId("A"));
+			assertThrows(IllegalStateException.class, () -> hashRing.findNodeId(key1));
 		}
 
 		/*

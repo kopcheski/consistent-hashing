@@ -1,5 +1,7 @@
 package org.kopcheski.consistenthashing;
 
+import org.kopcheski.consistenthashing.model.NodeId;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -7,12 +9,12 @@ public class Node {
 
 	static final int SIZE = 1_000;
 
-	private final String id;
+	private final NodeId id;
 
 	private final Map<String, String> storage = new HashMap<>();
 
 	public Node(String id) {
-		this.id = id;
+		this.id = new NodeId(id);
 	}
 
 	public void add(String key, String value) {
@@ -47,7 +49,7 @@ public class Node {
 		return new HashMap<>(this.storage);
 	}
 
-	public String getId() {
+	public NodeId getId() {
 		return this.id;
 	}
 

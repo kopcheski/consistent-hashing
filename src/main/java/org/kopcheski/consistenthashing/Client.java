@@ -1,5 +1,8 @@
 package org.kopcheski.consistenthashing;
 
+import org.kopcheski.consistenthashing.model.Key;
+import org.kopcheski.consistenthashing.model.NodeId;
+
 import java.util.Map;
 
 public class Client {
@@ -15,17 +18,18 @@ public class Client {
 	}
 
 	public void put(String key, String value) {
-		var nodeId = hashRing.findNodeId(key);
+		Key keyObject = new Key(key);
+		var nodeId = hashRing.findNodeId(keyObject);
 		if (nodeId == null) {
-			hashRing.addKey(key);
-			nodeId = hashRing.findNodeId(key);
+			hashRing.addKey(keyObject);
+			nodeId = hashRing.findNodeId(keyObject);
 		}
-		nodes.get(nodeId).add(key, value);
+		nodes.get(nodeId.value()).add(key, value);
 	}
 
 	public String get(String key) {
-		String nodeId = hashRing.findNodeId(key);
-		return nodes.get(nodeId).readValue(key);
+		NodeId nodeId = hashRing.findNodeId(new Key(key));
+		return nodes.get(nodeId.value()).readValue(key);
 	}
 
 }

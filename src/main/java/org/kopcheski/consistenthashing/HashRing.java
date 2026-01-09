@@ -1,6 +1,9 @@
 package org.kopcheski.consistenthashing;
 
 import org.kopcheski.consistenthashing.model.Hash;
+import org.kopcheski.consistenthashing.model.Key;
+import org.kopcheski.consistenthashing.model.NodeId;
+import org.kopcheski.consistenthashing.model.RingValue;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,9 +13,10 @@ import java.util.function.Consumer;
 
 public class HashRing {
 
-	private final TreeMap<Hash, String> ring;
+	private final TreeMap<Hash, RingValue> ring;
 
-	private final Map<String, Integer> serversMeta;
+	// to keep track of how many nodes each node have
+	private final Map<NodeId, Integer> serversMeta;
 
 	private final HashFunction hashFunction;
 
@@ -22,19 +26,19 @@ public class HashRing {
 		this.hashFunction = new HashFunction();
 	}
 
-	public String findNodeId(String key) {
+	public NodeId findNodeId(Key key) {
 		if (ring.isEmpty()) {
 			throw new IllegalStateException("Ring is empty");
 		}
 		var hash = hashFunction.hash(key);
 		if (!ring.containsKey(hash)) {
-			SortedMap<Hash, String> tailMap = ring.tailMap(hash);
+			SortedMap<Hash, RingValue> tailMap = ring.tailMap(hash);
 			hash = tailMap.isEmpty() ? ring.firstKey() : tailMap.firstKey();
 		}
-		return ring.get(hash); // it should return the nearest key, not the value.
+		return (NodeId) ring.get(hash); // it should return the nearest key, not the value.
 	}
 
-	public void addKey(String key) {
+	public void addKey(Key key) {
 		ring.put(hashFunction.hash(key), key);
 	}
 
@@ -61,7 +65,7 @@ public class HashRing {
 		consumer.accept(hashFunction.hash(nodeId));
 		for (; replicas > 0; replicas--) {
 			String virtualNodeId = "%s_%d".formatted(nodeId, replicas);
-			var hash = hashFunction.hash(virtualNodeId);
+			var hash = hashFunction.hash(new Key(virtualNodeId));
 			consumer.accept(hash);
 		}
 	}
