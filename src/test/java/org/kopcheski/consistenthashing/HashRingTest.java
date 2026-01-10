@@ -1,7 +1,6 @@
 package org.kopcheski.consistenthashing;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.kopcheski.consistenthashing.model.Key;
@@ -65,19 +64,55 @@ class HashRingTest {
 		 */
 		@Test
 		void testFindNodeByKey() {
-			hashRing.addNode(nodeA, 0);
-			hashRing.addNode(nodeB, 0);
-			hashRing.addNode(nodeC, 0);
-
-			hashRing.addKey(key1);
-			hashRing.addKey(key2);
-			hashRing.addKey(key3);
-			hashRing.addKey(key4);
+			addNodes();
+			addKeys();
 
 			assertEquals(nodeB.getId(), hashRing.findNodeId(key1));
 			assertEquals(nodeA.getId(), hashRing.findNodeId(key2));
 			assertEquals(nodeA.getId(), hashRing.findNodeId(key3));
 			assertEquals(nodeC.getId(), hashRing.findNodeId(key4));
+		}
+
+		/*
+		 * As a next step on the state of previous test, a new node is added to cause rebalance of keys.
+		 * Node/Key   | Hash
+		 * -----------|-----------
+		 * Key 1      | -1810453357
+		 * Node B     |  -861508982
+		 * Key 4      |  -516830072
+		 * Node C     |  -367198581
+		 * Key 2      |    19522071
+		 * Key 3      |   264741300
+		 * *Node new* |  *422208903*
+		 * Node A     |  1423767502
+		 *
+		 * The addition of a new node causes the keys previously from 'Node A' to be moved to it.
+		 */
+		@Test
+		void testAddNodeToLiveRing() {
+			addNodes();
+			addKeys();
+
+			var nodeNew = new Node("new");
+			hashRing.addNode(nodeNew, 0);
+
+			assertEquals(nodeB.getId(), hashRing.findNodeId(key1));
+			assertEquals(nodeNew.getId(), hashRing.findNodeId(key2));
+			assertEquals(nodeNew.getId(), hashRing.findNodeId(key3));
+			assertEquals(nodeC.getId(), hashRing.findNodeId(key4));
+		}
+
+		private void addKeys() {
+			hashRing.addKey(key1);
+			hashRing.addKey(key2);
+			hashRing.addKey(key3);
+			hashRing.addKey(key4);
+		}
+
+		private void addNodes() {
+			hashRing.addNode(nodeA, 0);
+			hashRing.addNode(nodeB, 0);
+			hashRing.addNode(nodeC, 0);
 		}
 
 	}
