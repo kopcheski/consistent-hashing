@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class NodeTest {
@@ -69,6 +71,18 @@ class NodeTest {
 			assertDoesNotThrow(() -> storageNode.removeValue(KEY));
 		}
 
+	}
+
+	@Test
+	void testTransferData() {
+		var value = "value";
+		storageNode.add(KEY, value);
+
+		var destination = new Node("destination");
+		destination.transfer(Set.of(KEY), storageNode);
+
+		assertEquals(value, destination.readValue(KEY), "The \"value\" should have been transferred to the destination node.");
+		assertThrows(IllegalStateException.class, () -> storageNode.readValue(KEY), "The \"value\" should not be in this node anymore.");
 	}
 
 }
