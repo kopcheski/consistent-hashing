@@ -15,8 +15,19 @@ class ClientTest {
 	}
 
 	@Test
-	void testPut() {
+	void testStoreValue() {
 		client.put("key", "value");
+		assertEquals("value", client.get("key"));
+	}
+
+	@Test
+	void testFindValueAfterNodeIsRemoved() {
+		client.put("key", "value");
+
+		var node = client.findNode("key");
+		client.addNewNode("D");
+		client.removeNode(node);
+
 		assertEquals("value", client.get("key"));
 	}
 
