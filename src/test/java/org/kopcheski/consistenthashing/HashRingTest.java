@@ -64,13 +64,8 @@ class HashRingTest {
 		 */
 		@Test
 		void testFindNodeByKey() {
-			addNodes();
-			addKeys();
-
-			assertEquals(nodeB.getId(), hashRing.findNodeId(key1));
-			assertEquals(nodeA.getId(), hashRing.findNodeId(key2));
-			assertEquals(nodeA.getId(), hashRing.findNodeId(key3));
-			assertEquals(nodeC.getId(), hashRing.findNodeId(key4));
+			initialLoadOfKeysAndNodes();
+			assertionOfInitialLoadOfKeysAndNodes();
 		}
 
 		/*
@@ -90,16 +85,31 @@ class HashRingTest {
 		 */
 		@Test
 		void testAddNodeToLiveRing() {
-			addNodes();
-			addKeys();
+			initialLoadOfKeysAndNodes();
+			assertionOfInitialLoadOfKeysAndNodes();
 
 			var nodeNew = new Node("new");
 			hashRing.addNode(nodeNew, 0);
 
+			//keys 1 and 4 still belong to nodes B and C respectively.
 			assertEquals(nodeB.getId(), hashRing.findNodeId(key1));
+			assertEquals(nodeC.getId(), hashRing.findNodeId(key4));
+
+			//but now keys 2 and 3 belong to node new instead of node A.
 			assertEquals(nodeNew.getId(), hashRing.findNodeId(key2));
 			assertEquals(nodeNew.getId(), hashRing.findNodeId(key3));
+		}
+
+		private void assertionOfInitialLoadOfKeysAndNodes() {
+			assertEquals(nodeB.getId(), hashRing.findNodeId(key1));
+			assertEquals(nodeA.getId(), hashRing.findNodeId(key2));
+			assertEquals(nodeA.getId(), hashRing.findNodeId(key3));
 			assertEquals(nodeC.getId(), hashRing.findNodeId(key4));
+		}
+
+		private void initialLoadOfKeysAndNodes() {
+			addNodes();
+			addKeys();
 		}
 
 		private void addKeys() {
