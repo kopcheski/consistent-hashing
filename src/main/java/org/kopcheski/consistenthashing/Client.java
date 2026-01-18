@@ -5,6 +5,7 @@ import org.kopcheski.consistenthashing.model.NodeId;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class Client {
 
@@ -13,8 +14,12 @@ public class Client {
 	private Map<String, Node> nodes;
 
 	public Client() {
+		this(Map.of("A", new Node("A"), "B", new Node("B"), "C", new Node("C")));
+	}
+
+	Client(Map<String, Node> nodes) {
 		hashRing = new HashRing();
-		nodes = Map.of("A", new Node("A"), "B", new Node("B"), "C", new Node("C"));
+		this.nodes = nodes;
 		nodes.values().forEach(node -> hashRing.addNode(node, 0));
 	}
 
@@ -35,15 +40,20 @@ public class Client {
 
 	void addNewNode(String id) {
 		nodes = new HashMap<>(nodes);
-		nodes.put(id, new Node(id));
+		Node newNode = new Node(id);
+		nodes.put(id, newNode);
 		hashRing.addNode(nodes.get(id), 0);
-		// TODO ebalance keys
+
+		NodeId newNodeId = newNode.getId();
+		Set<String> keys = hashRing.getAllKeys(newNodeId);
+		NodeId nodeId = hashRing.findNextNode(newNodeId);
+		nodes.get(newNodeId.value()).transfer(keys, nodes.get(nodeId.value()));
 	}
 
 	void removeNode(NodeId nodeId) {
 		hashRing.removeNode(nodes.get(nodeId.value()));
 		var removedNode = nodes.remove(nodeId.value());
-		// TODO rebalance keys : check video for "ideal" rebalance.
+
 		Map<String, String> nodesData = removedNode.dumpData();
 		nodesData.forEach((key, value) -> put(key, value));
 	}
@@ -52,4 +62,11 @@ public class Client {
 		return hashRing.findNodeId(new Key(key));
 	}
 
+	String getOwningNode(String key) {
+		NodeId value = hashRing.findNodeId(new Key(key));
+		// TODO: ideally double checking if the value is really where it was supposed to be is redundant. How to avoid that?
+		nodes.get(value.value()).readValue(key);
+
+		return value.value();
+	}
 }

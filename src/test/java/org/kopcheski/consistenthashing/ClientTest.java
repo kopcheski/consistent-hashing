@@ -3,6 +3,8 @@ package org.kopcheski.consistenthashing;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ClientTest {
@@ -29,6 +31,15 @@ class ClientTest {
 		client.removeNode(node);
 
 		assertEquals("value", client.get("key"));
+	}
+
+	@Test
+	void testDataRebalanceAfterAddingNewNode() {
+		client = new Client(Map.of("A", new Node("A")));
+		client.put("key", "value");
+		assertEquals("A", client.getOwningNode("key"));
+		client.addNewNode("new");
+		assertEquals("new", client.getOwningNode("key"));
 	}
 
 }

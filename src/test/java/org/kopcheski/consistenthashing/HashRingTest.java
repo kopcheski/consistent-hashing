@@ -5,6 +5,8 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.kopcheski.consistenthashing.model.Key;
 
+import java.util.Set;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class HashRingTest {
@@ -100,29 +102,10 @@ class HashRingTest {
 			assertEquals(nodeNew.getId(), hashRing.findNodeId(key3));
 		}
 
-		private void assertionOfInitialLoadOfKeysAndNodes() {
-			assertEquals(nodeB.getId(), hashRing.findNodeId(key1));
-			assertEquals(nodeA.getId(), hashRing.findNodeId(key2));
-			assertEquals(nodeA.getId(), hashRing.findNodeId(key3));
-			assertEquals(nodeC.getId(), hashRing.findNodeId(key4));
-		}
-
-		private void initialLoadOfKeysAndNodes() {
-			addNodes();
-			addKeys();
-		}
-
-		private void addKeys() {
-			hashRing.addKey(key1);
-			hashRing.addKey(key2);
-			hashRing.addKey(key3);
-			hashRing.addKey(key4);
-		}
-
-		private void addNodes() {
-			hashRing.addNode(nodeA, 0);
-			hashRing.addNode(nodeB, 0);
-			hashRing.addNode(nodeC, 0);
+		@Test
+		void testFindNextNode() {
+			initialLoadOfKeysAndNodes();
+			assertEquals(nodeC.getId(), hashRing.findNextNode(nodeB.getId()));
 		}
 
 	}
@@ -177,5 +160,54 @@ class HashRingTest {
 			hashRing.removeNode(nodeA);
 			assertFalse(hashRing.isNodePresent(nodeA));
 		}
+	}
+
+	@Nested
+	class ReadKeysFromNodeTest {
+
+		@Test
+		void testReadKeysFromNode() {
+			initialLoadOfKeysAndNodes();
+			Set<String> allKeys = hashRing.getAllKeys(nodeA.getId());
+			assertEquals(Set.of(key2.value(), key3.value()), allKeys);
+		}
+
+	}
+
+	private void assertionOfInitialLoadOfKeysAndNodes() {
+		assertEquals(nodeB.getId(), hashRing.findNodeId(key1));
+		assertEquals(nodeA.getId(), hashRing.findNodeId(key2));
+		assertEquals(nodeA.getId(), hashRing.findNodeId(key3));
+		assertEquals(nodeC.getId(), hashRing.findNodeId(key4));
+	}
+
+	/**
+	 * Adds Nodes and Keys with the following disposition.
+	 * Node/Key | Hash
+	 * ---------|-----------
+	 * Key 1    | -1810453357
+	 * Node B   |  -861508982
+	 * Key 4    |  -516830072
+	 * Node C   |  -367198581
+	 * Key 2    |    19522071
+	 * Key 3    |   264741300
+	 * Node A   |  1423767502
+	 */
+	private void initialLoadOfKeysAndNodes() {
+		addNodes();
+		addKeys();
+	}
+
+	private void addKeys() {
+		hashRing.addKey(key1);
+		hashRing.addKey(key2);
+		hashRing.addKey(key3);
+		hashRing.addKey(key4);
+	}
+
+	private void addNodes() {
+		hashRing.addNode(nodeA, 0);
+		hashRing.addNode(nodeB, 0);
+		hashRing.addNode(nodeC, 0);
 	}
 }

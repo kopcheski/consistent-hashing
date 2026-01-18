@@ -5,17 +5,14 @@ import org.kopcheski.consistenthashing.model.Key;
 import org.kopcheski.consistenthashing.model.NodeId;
 import org.kopcheski.consistenthashing.model.RingValue;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class HashRing {
 
 	private final TreeMap<Hash, RingValue> ring;
 
-	// to keep track of how many nodes each node have
+	// to keep track of how many replicas each node has
 	private final Map<NodeId, Integer> serversMeta;
 
 	private final HashFunction hashFunction;
@@ -46,7 +43,7 @@ public class HashRing {
 		ring.put(hashFunction.hash(key), key);
 	}
 
-	// fixit: an instance of Node shouldn't be kept here, only its id instead.
+	// FIXME: an instance of Node shouldn't be kept here, only its id instead.
 	// the Node represents a remote storage, so keeping instances of it is undoable.
 	public void addNode(Node node, int replicas) {
 		var nodeId = node.getId();
@@ -80,5 +77,35 @@ public class HashRing {
 
 	int nodesCount() {
 		return ring.size();
+	}
+
+	public Set<String> getAllKeys(NodeId id) {
+		var tempMap = ring.headMap(hashFunction.hash(id)).reversed();
+		Set<String> keys = new HashSet<>();
+		for (Map.Entry<Hash, RingValue> entry : tempMap.entrySet()) {
+			if (entry.getValue() instanceof Key key) {
+				keys.add(key.value());
+			} else if (entry.getValue() instanceof NodeId) {
+				break;
+			} else {
+				throw new IllegalStateException("It should never get here since the map can only have Key and NodeId");
+			}
+			// TODO: can it exhaust the collection without finding any NodeId?
+		}
+		return keys;
+	}
+
+	public NodeId findNextNode(NodeId newNodeId) {
+		SortedMap<Hash, RingValue> tailMap = ring.tailMap(hashFunction.hash(newNodeId), false);
+		for (Map.Entry<Hash, RingValue> entry : tailMap.entrySet()) {
+			if (entry.getValue() instanceof NodeId nodeId) {
+				return nodeId;
+			}
+		}
+		return ring.values().stream()
+				.filter(node -> node instanceof NodeId)
+				.findFirst()
+				.map(NodeId.class::cast)
+				.orElseThrow(() -> new IllegalStateException("It did not find a Node in any the directions. What is happening?"));
 	}
 }
