@@ -43,26 +43,21 @@ public class HashRing {
 		ring.put(hashFunction.hash(key), key);
 	}
 
-	// FIXME: an instance of Node shouldn't be kept here, only its id instead.
-	// the Node represents a remote storage, so keeping instances of it is undoable.
-	public void addNode(Node node, int replicas) {
-		var nodeId = node.getId();
+	public void addNode(NodeId nodeId, int replicas) {
 		this.serversMeta.computeIfPresent(nodeId, (k, v) -> { throw new IllegalArgumentException("Node already exists"); });
 
 		this.serversMeta.put(nodeId, replicas);
-		acceptOnEachNode(node, replicas, nodeIdHash -> this.ring.put(nodeIdHash, nodeId));
+		acceptOnEachNode(nodeId, replicas, nodeIdHash -> this.ring.put(nodeIdHash, nodeId));
 	}
 
-	public void removeNode(Node node) {
-		var nodeId = node.getId();
+	public void removeNode(NodeId nodeId) {
 		this.serversMeta.computeIfAbsent(nodeId, k -> { throw new IllegalArgumentException("Node already exists"); });
 
-		acceptOnEachNode(node, this.serversMeta.get(nodeId), this.ring::remove);
+		acceptOnEachNode(nodeId, this.serversMeta.get(nodeId), this.ring::remove);
 		this.serversMeta.remove(nodeId);
 	}
 
-	private void acceptOnEachNode(Node node, int replicas, Consumer<Hash> consumer) {
-		var nodeId = node.getId();
+	private void acceptOnEachNode(NodeId nodeId, int replicas, Consumer<Hash> consumer) {
 		consumer.accept(hashFunction.hash(nodeId));
 		for (; replicas > 0; replicas--) {
 			String virtualNodeId = "%s_%d".formatted(nodeId, replicas);
@@ -71,8 +66,8 @@ public class HashRing {
 		}
 	}
 
-	boolean isNodePresent(Node node) {
-		return ring.containsKey(hashFunction.hash(node.getId()));
+	boolean isNodePresent(NodeId nodeId) {
+		return ring.containsKey(hashFunction.hash(nodeId));
 	}
 
 	int nodesCount() {

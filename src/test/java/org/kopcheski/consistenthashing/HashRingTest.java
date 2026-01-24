@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.kopcheski.consistenthashing.model.Key;
+import org.kopcheski.consistenthashing.model.NodeId;
 
 import java.util.Set;
 
@@ -12,16 +13,16 @@ import static org.junit.jupiter.api.Assertions.*;
 class HashRingTest {
 
 	private HashRing hashRing;
-	private Node nodeA, nodeB, nodeC;
+	private NodeId nodeIdA, nodeIdB, nodeIdC;
 	private Key key1, key2, key3, key4;
 
 
 	@BeforeEach
 	void setUp() {
 		hashRing = new HashRing();
-		nodeA = new Node("A");
-		nodeB = new Node("B");
-		nodeC = new Node("C");
+		nodeIdA = new Node("A").getId();
+		nodeIdB = new Node("B").getId();
+		nodeIdC = new Node("C").getId();
 
 		key1 = new Key("1");
 		key2 = new Key("2");
@@ -91,11 +92,11 @@ class HashRingTest {
 			assertionOfInitialLoadOfKeysAndNodes();
 
 			var nodeNew = new Node("new");
-			hashRing.addNode(nodeNew, 0);
+			hashRing.addNode(nodeNew.getId(), 0);
 
 			//keys 1 and 4 still belong to nodes B and C respectively.
-			assertEquals(nodeB.getId(), hashRing.findNodeId(key1));
-			assertEquals(nodeC.getId(), hashRing.findNodeId(key4));
+			assertEquals(nodeIdB, hashRing.findNodeId(key1));
+			assertEquals(nodeIdC, hashRing.findNodeId(key4));
 
 			//but now keys 2 and 3 belong to node new instead of node A.
 			assertEquals(nodeNew.getId(), hashRing.findNodeId(key2));
@@ -105,7 +106,7 @@ class HashRingTest {
 		@Test
 		void testFindNextNode() {
 			initialLoadOfKeysAndNodes();
-			assertEquals(nodeC.getId(), hashRing.findNextNode(nodeB.getId()));
+			assertEquals(nodeIdC, hashRing.findNextNode(nodeIdB));
 		}
 
 	}
@@ -120,18 +121,18 @@ class HashRingTest {
 
 		@Test
 		void testAddNode() {
-			hashRing.addNode(nodeA, 0);
-			hashRing.addNode(nodeB, 0);
+			hashRing.addNode(nodeIdA, 0);
+			hashRing.addNode(nodeIdB, 0);
 
-			assertTrue(hashRing.isNodePresent(nodeA));
-			assertTrue(hashRing.isNodePresent(nodeB));
+			assertTrue(hashRing.isNodePresent(nodeIdA));
+			assertTrue(hashRing.isNodePresent(nodeIdB));
 		}
 
 		@Test
 		void testReplicasPresentInTheRing() {
 			int replicas = 3;
 
-			hashRing.addNode(nodeA, replicas);
+			hashRing.addNode(nodeIdA, replicas);
 
 			assertEquals(replicas + 1, hashRing.nodesCount(),
 					"A total # of replicas + 1 server should be present in the ring.");
@@ -139,8 +140,8 @@ class HashRingTest {
 
 		@Test
 		void testAddNodeFailsWhenItAlreadyExists() {
-			hashRing.addNode(nodeA, 0);
-			assertThrows(IllegalArgumentException.class, () -> hashRing.addNode(nodeA, 0));
+			hashRing.addNode(nodeIdA, 0);
+			assertThrows(IllegalArgumentException.class, () -> hashRing.addNode(nodeIdA, 0));
 		}
 	}
 
@@ -149,16 +150,16 @@ class HashRingTest {
 
 		@Test
 		void removeUnexistentNodeFails() {
-			assertThrows(IllegalArgumentException.class, () -> hashRing.removeNode(nodeA));
+			assertThrows(IllegalArgumentException.class, () -> hashRing.removeNode(nodeIdA));
 		}
 
 		@Test
 		void removeExistentNodeSucceeds() {
-			hashRing.addNode(nodeA, 0);
-			assertTrue(hashRing.isNodePresent(nodeA));
+			hashRing.addNode(nodeIdA, 0);
+			assertTrue(hashRing.isNodePresent(nodeIdA));
 
-			hashRing.removeNode(nodeA);
-			assertFalse(hashRing.isNodePresent(nodeA));
+			hashRing.removeNode(nodeIdA);
+			assertFalse(hashRing.isNodePresent(nodeIdA));
 		}
 	}
 
@@ -168,17 +169,17 @@ class HashRingTest {
 		@Test
 		void testReadKeysFromNode() {
 			initialLoadOfKeysAndNodes();
-			Set<String> allKeys = hashRing.getAllKeys(nodeA.getId());
+			Set<String> allKeys = hashRing.getAllKeys(nodeIdA);
 			assertEquals(Set.of(key2.value(), key3.value()), allKeys);
 		}
 
 	}
 
 	private void assertionOfInitialLoadOfKeysAndNodes() {
-		assertEquals(nodeB.getId(), hashRing.findNodeId(key1));
-		assertEquals(nodeA.getId(), hashRing.findNodeId(key2));
-		assertEquals(nodeA.getId(), hashRing.findNodeId(key3));
-		assertEquals(nodeC.getId(), hashRing.findNodeId(key4));
+		assertEquals(nodeIdB, hashRing.findNodeId(key1));
+		assertEquals(nodeIdA, hashRing.findNodeId(key2));
+		assertEquals(nodeIdA, hashRing.findNodeId(key3));
+		assertEquals(nodeIdC, hashRing.findNodeId(key4));
 	}
 
 	/**
@@ -206,8 +207,8 @@ class HashRingTest {
 	}
 
 	private void addNodes() {
-		hashRing.addNode(nodeA, 0);
-		hashRing.addNode(nodeB, 0);
-		hashRing.addNode(nodeC, 0);
+		hashRing.addNode(nodeIdA, 0);
+		hashRing.addNode(nodeIdB, 0);
+		hashRing.addNode(nodeIdC, 0);
 	}
 }

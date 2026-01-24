@@ -20,7 +20,7 @@ public class Client {
 	Client(Map<String, Node> nodes) {
 		hashRing = new HashRing();
 		this.nodes = nodes;
-		nodes.values().forEach(node -> hashRing.addNode(node, 0));
+		nodes.values().forEach(node -> hashRing.addNode(node.getId(), 0));
 	}
 
 	public void put(String key, String value) {
@@ -42,7 +42,7 @@ public class Client {
 		nodes = new HashMap<>(nodes);
 		Node newNode = new Node(id);
 		nodes.put(id, newNode);
-		hashRing.addNode(nodes.get(id), 0);
+		hashRing.addNode(nodes.get(id).getId(), 0);
 
 		NodeId newNodeId = newNode.getId();
 		Set<String> keys = hashRing.getAllKeys(newNodeId);
@@ -51,7 +51,7 @@ public class Client {
 	}
 
 	void removeNode(NodeId nodeId) {
-		hashRing.removeNode(nodes.get(nodeId.value()));
+		hashRing.removeNode(nodeId);
 		var removedNode = nodes.remove(nodeId.value());
 
 		Map<String, String> nodesData = removedNode.dumpData();
