@@ -4,7 +4,6 @@ import org.kopcheski.consistenthashing.model.NodeId;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class Node {
 
@@ -54,9 +53,4 @@ public class Node {
 		return this.id;
 	}
 
-	//TODO: OOP-wise, this looks good. However, this represent remote entities (nodes), so perhaps this communication
-	// should be driven by the Client.
-	public void transfer(Set<String> keys, Node originNode) {
-		keys.forEach(key -> this.add(key, originNode.removeValue(key)));
-	}
 }

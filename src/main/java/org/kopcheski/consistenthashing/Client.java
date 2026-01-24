@@ -5,7 +5,6 @@ import org.kopcheski.consistenthashing.model.NodeId;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 public class Client {
 
@@ -45,9 +44,8 @@ public class Client {
 		hashRing.addNode(nodes.get(id).getId(), 0);
 
 		NodeId newNodeId = newNode.getId();
-		Set<String> keys = hashRing.getAllKeys(newNodeId);
 		NodeId nodeId = hashRing.findNextNode(newNodeId);
-		nodes.get(newNodeId.value()).transfer(keys, nodes.get(nodeId.value()));
+		transfer(nodes.get(nodeId.value()), nodes.get(newNodeId.value()));
 	}
 
 	void removeNode(NodeId nodeId) {
@@ -55,7 +53,7 @@ public class Client {
 		var removedNode = nodes.remove(nodeId.value());
 
 		Map<String, String> nodesData = removedNode.dumpData();
-		nodesData.forEach((key, value) -> put(key, value));
+		nodesData.forEach(this::put);
 	}
 
 	NodeId findNode(String key) {
@@ -68,5 +66,10 @@ public class Client {
 		nodes.get(value.value()).readValue(key);
 
 		return value.value();
+	}
+
+	private void transfer(Node originNode, Node destinationNode) {
+		Map<String, String> data = originNode.dumpData();
+		data.forEach(destinationNode::add);
 	}
 }
