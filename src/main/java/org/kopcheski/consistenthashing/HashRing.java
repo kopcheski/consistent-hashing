@@ -44,14 +44,14 @@ public class HashRing {
 	}
 
 	public void addNode(NodeId nodeId, int replicas) {
-		this.serversMeta.computeIfPresent(nodeId, (k, v) -> { throw new IllegalArgumentException("Node already exists"); });
+		this.serversMeta.computeIfPresent(nodeId, (_, _) -> { throw new IllegalArgumentException("Node already exists"); });
 
 		this.serversMeta.put(nodeId, replicas);
 		acceptOnEachNode(nodeId, replicas, nodeIdHash -> this.ring.put(nodeIdHash, nodeId));
 	}
 
 	public void removeNode(NodeId nodeId) {
-		this.serversMeta.computeIfAbsent(nodeId, k -> { throw new IllegalArgumentException("Node already exists"); });
+		this.serversMeta.computeIfAbsent(nodeId, _ -> { throw new IllegalArgumentException("Node already exists"); });
 
 		acceptOnEachNode(nodeId, this.serversMeta.get(nodeId), this.ring::remove);
 		this.serversMeta.remove(nodeId);
@@ -78,8 +78,8 @@ public class HashRing {
 		var tempMap = ring.headMap(hashFunction.hash(id)).reversed();
 		Set<String> keys = new HashSet<>();
 		for (Map.Entry<Hash, RingValue> entry : tempMap.entrySet()) {
-			if (entry.getValue() instanceof Key key) {
-				keys.add(key.value());
+			if (entry.getValue() instanceof Key(String value)) {
+				keys.add(value);
 			} else if (entry.getValue() instanceof NodeId) {
 				break;
 			} else {
@@ -98,7 +98,7 @@ public class HashRing {
 			}
 		}
 		return ring.values().stream()
-				.filter(node -> node instanceof NodeId)
+				.filter(NodeId.class::isInstance)
 				.findFirst()
 				.map(NodeId.class::cast)
 				.orElseThrow(() -> new IllegalStateException("It did not find a Node in any the directions. What is happening?"));
