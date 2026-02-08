@@ -31,16 +31,17 @@ public class HashRing {
 		if (ring.containsKey(hash)) {
 			SortedMap<Hash, RingValue> tailMap = ring.tailMap(hash);
 			SortedMap<Hash, RingValue> headMap = ring.headMap(hash, true);
-			hash = tailMap.isEmpty() ? ring.firstKey() : tailMap.entrySet().stream()
-					.filter(entry -> entry.getValue() instanceof NodeId)
-					.map(Map.Entry::getKey)
-					.findFirst()
-					.orElse(headMap.entrySet().stream()
-							.filter(entry -> entry.getValue() instanceof NodeId)
-							.map(Map.Entry::getKey)
-							.findFirst().orElse(null));
+			Optional<Hash> optionalHash = findFirstNodeIdInSortedMap(tailMap);
+			hash = optionalHash.orElseGet(() -> findFirstNodeIdInSortedMap(headMap).orElseThrow());
 		}
 		return (NodeId) ring.get(hash);
+	}
+
+	private Optional<Hash> findFirstNodeIdInSortedMap(SortedMap<Hash, RingValue> sortedMap) {
+		return sortedMap.entrySet().stream()
+				.filter(entry -> entry.getValue() instanceof NodeId)
+				.map(Map.Entry::getKey)
+				.findFirst();
 	}
 
 	public void addKey(Key key) {
