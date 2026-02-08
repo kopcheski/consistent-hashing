@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Node {
 
-	static final int SIZE = 1_000;
+	static final int SIZE = 10_000;
 
 	private final NodeId id;
 

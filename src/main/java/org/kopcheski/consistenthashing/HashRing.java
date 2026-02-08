@@ -30,11 +30,15 @@ public class HashRing {
 		var hash = hashFunction.hash(key);
 		if (ring.containsKey(hash)) {
 			SortedMap<Hash, RingValue> tailMap = ring.tailMap(hash);
+			SortedMap<Hash, RingValue> headMap = ring.headMap(hash, true);
 			hash = tailMap.isEmpty() ? ring.firstKey() : tailMap.entrySet().stream()
 					.filter(entry -> entry.getValue() instanceof NodeId)
 					.map(Map.Entry::getKey)
 					.findFirst()
-					.orElse(ring.firstKey());
+					.orElse(headMap.entrySet().stream()
+							.filter(entry -> entry.getValue() instanceof NodeId)
+							.map(Map.Entry::getKey)
+							.findFirst().orElse(null));
 		}
 		return (NodeId) ring.get(hash);
 	}
