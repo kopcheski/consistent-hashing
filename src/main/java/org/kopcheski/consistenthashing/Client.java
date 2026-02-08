@@ -24,12 +24,12 @@ public class Client {
 
 	public void put(String key, String value) {
 		Key keyObject = new Key(key);
-		var nodeId = hashRing.findNodeId(keyObject);
-		if (nodeId == null) {
+		var nodeIdToStoreEntry = hashRing.findNodeId(keyObject);
+		if (nodeIdToStoreEntry == null) {
 			hashRing.addKey(keyObject);
-			nodeId = hashRing.findNodeId(keyObject);
+			nodeIdToStoreEntry = hashRing.findNodeId(keyObject);
 		}
-		nodes.get(nodeId.value()).add(key, value);
+		nodes.get(nodeIdToStoreEntry.value()).add(key, value);
 	}
 
 	public String get(String key) {
