@@ -12,7 +12,7 @@ public class HashRing {
 
 	private final TreeMap<Hash, RingValue> ring;
 
-	// to keep track of how many replicas each node has
+	// to keep track of how many virtual nodes each node has
 	private final Map<NodeId, Integer> serversMeta;
 
 	private final HashFunction hashFunction;
@@ -48,11 +48,11 @@ public class HashRing {
 		ring.put(hashFunction.hash(key), key);
 	}
 
-	public void addNode(NodeId nodeId, int replicas) {
+	public void addNode(NodeId nodeId, int virtualNodes) {
 		this.serversMeta.computeIfPresent(nodeId, (_, _) -> { throw new IllegalArgumentException("Node already exists"); });
 
-		this.serversMeta.put(nodeId, replicas);
-		acceptOnEachNode(nodeId, replicas, nodeIdHash -> this.ring.put(nodeIdHash, nodeId));
+		this.serversMeta.put(nodeId, virtualNodes);
+		acceptOnEachNode(nodeId, virtualNodes, nodeIdHash -> this.ring.put(nodeIdHash, nodeId));
 	}
 
 	public void removeNode(NodeId nodeId) {
@@ -62,10 +62,10 @@ public class HashRing {
 		this.serversMeta.remove(nodeId);
 	}
 
-	private void acceptOnEachNode(NodeId nodeId, int replicas, Consumer<Hash> consumer) {
+	private void acceptOnEachNode(NodeId nodeId, int virtualNodes, Consumer<Hash> consumer) {
 		consumer.accept(hashFunction.hash(nodeId));
-		for (; replicas > 0; replicas--) {
-			String virtualNodeId = "%s_%d".formatted(nodeId, replicas);
+		for (; virtualNodes > 0; virtualNodes--) {
+			String virtualNodeId = "%s_%d".formatted(nodeId, virtualNodes);
 			var hash = hashFunction.hash(new Key(virtualNodeId));
 			consumer.accept(hash);
 		}

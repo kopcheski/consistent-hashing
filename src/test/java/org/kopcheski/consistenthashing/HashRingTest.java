@@ -129,13 +129,13 @@ class HashRingTest {
 		}
 
 		@Test
-		void testReplicasPresentInTheRing() {
-			int replicas = 3;
+		void testVirtualNodesPresentInTheRing() {
+			int virtualNodes = 3;
 
-			hashRing.addNode(nodeIdA, replicas);
+			hashRing.addNode(nodeIdA, virtualNodes);
 
-			assertEquals(replicas + 1, hashRing.nodesCount(),
-					"A total # of replicas + 1 server should be present in the ring.");
+			assertEquals(virtualNodes + 1, hashRing.nodesCount(),
+					"A total # of virtual nodes + 1 server should be present in the ring.");
 		}
 
 		@Test
