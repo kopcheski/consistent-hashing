@@ -8,18 +8,23 @@ import java.util.Map;
 
 public class Client {
 
+	private static final Map<String, Node> DEFAULT_NODES_SET = Map.of(
+			"A", new Node("A"),
+			"B", new Node("B"),
+			"C", new Node("C"));
+
 	private final HashRing hashRing;
 
 	private Map<String, Node> nodes;
 
 	public Client() {
-		this(Map.of("A", new Node("A"), "B", new Node("B"), "C", new Node("C")));
+		this(DEFAULT_NODES_SET);
 	}
 
 	Client(Map<String, Node> nodes) {
 		hashRing = new HashRing();
 		this.nodes = nodes;
-		nodes.values().forEach(node -> hashRing.addNode(node.getId(), 0));
+		nodes.values().forEach(node -> hashRing.addNode(node.getId(), 3));
 	}
 
 	public void put(String key, String value) {
@@ -76,6 +81,7 @@ public class Client {
 	public void dumpCountPerNode() {
 		nodes.values().forEach(node -> {
 			long count = node.dumpData().keySet().stream().count();
+			System.out.printf("Keys count for node %s: %d%n", node.getId().value(), count);
 		});
 	}
 
