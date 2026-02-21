@@ -2,21 +2,30 @@ package org.kopcheski.consistenthashing;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.junit.jupiter.api.Test;
 
 import java.util.IntSummaryStatistics;
 import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-class ComponentTest {
+public class ConsistentHashingApp {
 
-	private static final Logger logger = LogManager.getLogger(ComponentTest.class);
+	private static final Logger logger = LogManager.getLogger(ConsistentHashingApp.class);
+	private static final int DEFAULT_KEY_COUNT = 40_000;
+	private static final int DEFAULT_NODE_COUNT = 150;
 
-	@Test
-	void test() {
-		var client = new Client(nodes(150));
-		IntStream.range(0, 40_000).forEach(i -> {
+	public static void main(String[] args) {
+		int keyCount = DEFAULT_KEY_COUNT;
+		if (args.length > 0) {
+			try {
+				keyCount = Integer.parseInt(args[0]);
+			} catch (NumberFormatException e) {
+				logger.warn("Invalid key count argument: {}. Using default value {}.", args[0], DEFAULT_KEY_COUNT);
+			}
+		}
+
+		var client = new Client(nodes(DEFAULT_NODE_COUNT));
+		IntStream.range(0, keyCount).forEach(i -> {
 			var key = "key_" + i;
 			var value = "value_" + i;
 			client.put(key, value);
@@ -36,7 +45,7 @@ class ComponentTest {
 		logger.info("Average Keys per Node: {}", stats.getAverage());
 	}
 
-	private Map<String, Node> nodes(int count) {
+	private static Map<String, Node> nodes(int count) {
 		return IntStream.range(0, count)
 				.mapToObj(i -> "node_" + i)
 				.collect(Collectors.toMap(id -> id, Node::new));
