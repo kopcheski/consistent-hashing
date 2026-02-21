@@ -78,11 +78,8 @@ public class Client {
 		data.forEach(destinationNode::add);
 	}
 
-	public void dumpCountPerNode() {
-		nodes.values().forEach(node -> {
-			long count = node.dumpData().keySet().stream().count();
-			System.out.printf("Keys count for node %s: %d%n", node.getId().value(), count);
-		});
+	Map<String, Node> getNodes() {
+		return nodes;
 	}
 
 }
