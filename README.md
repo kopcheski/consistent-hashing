@@ -14,7 +14,7 @@ This project implements a basic Consistent Hashing mechanism in Java. Below is a
     *   Identifier: [`NodeId.java`](src/main/java/org/kopcheski/consistenthashing/model/NodeId.java) - Strongly typed identifier for a node.
 
 *   **Virtual Nodes**: To ensure a more uniform distribution of keys, each physical node can be represented by multiple virtual nodes on the ring.
-    *   Implementation: Handled within `HashRing.java` (see `addNode` method where replicas are created).
+    *   Implementation: Handled within `HashRing.java` (see `addNode` method where virtual nodes are created).
 
 *   **Hash Function**: A function used to map nodes and keys to integer values on the ring.
     *   Implementation: [`HashFunction.java`](src/main/java/org/kopcheski/consistenthashing/HashFunction.java) - Provides the hashing logic.
@@ -27,10 +27,14 @@ This project implements a basic Consistent Hashing mechanism in Java. Below is a
 
 ## Usage
 
-The `Client` class provides the main entry point for interacting with the system:
+This project can be run from the command line using the provided `run.zsh` script.
 
-```java
-Client client = new Client();
-client.put("myKey", "myValue");
-String value = client.get("myKey");
+To run with default values:
+```sh
+./run.zsh
+```
+
+You can also provide an optional argument to specify the number of keys to be generated and stored in the ring. For example, to generate 50,000 keys:
+```sh
+./run.zsh 50000
 ```
