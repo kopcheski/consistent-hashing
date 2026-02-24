@@ -8,29 +8,44 @@ import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-public class ConsistentHashingApp {
+class ConsistentHashingApp {
 
 	private static final Logger logger = LogManager.getLogger(ConsistentHashingApp.class);
 	private static final int DEFAULT_KEY_COUNT = 40_000;
 	private static final int DEFAULT_NODE_COUNT = 150;
 
-	public static void main(String[] args) {
+	private ConsistentHashingApp() {
+	}
+
+	static void main(String[] args) {
+		int keyCount = getKeyCount(args);
+		var client = feedKeysIn(keyCount);
+		printNodesStatistics(client);
+	}
+
+	private static int getKeyCount(String[] args) {
 		int keyCount = DEFAULT_KEY_COUNT;
 		if (args.length > 0) {
 			try {
 				keyCount = Integer.parseInt(args[0]);
-			} catch (NumberFormatException e) {
+			} catch (NumberFormatException _) {
 				logger.warn("Invalid key count argument: {}. Using default value {}.", args[0], DEFAULT_KEY_COUNT);
 			}
 		}
+		return keyCount;
+	}
 
+	private static Client feedKeysIn(int keyCount) {
 		var client = new Client(nodes(DEFAULT_NODE_COUNT));
 		IntStream.range(0, keyCount).forEach(i -> {
 			var key = "key_" + i;
 			var value = "value_" + i;
 			client.put(key, value);
 		});
+		return client;
+	}
 
+	private static void printNodesStatistics(Client client) {
 		Map<String, Node> nodes = client.getNodes();
 
 		IntSummaryStatistics stats = nodes.values().stream()
